@@ -4,13 +4,16 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.NoSuchElementException;
 import net.sourceforge.cardme.engine.VCardEngine;
 import net.sourceforge.cardme.vcard.VCard;
 import net.sourceforge.cardme.vcard.exceptions.VCardParseException;
 import net.sourceforge.cardme.vcard.types.EmailType;
+import net.sourceforge.cardme.vcard.types.NicknameType;
 import net.sourceforge.cardme.vcard.types.TelType;
 import au.com.bytecode.opencsv.CSVWriter;
 
@@ -33,14 +36,51 @@ public class App
                     VCard vcard = engine.parse(f);
                     GoogleContact gc = new GoogleContact();
                     if(vcard.getFN() != null) gc.setName(vcard.getFN().getFormattedName());
+                    
                     if(vcard.getN() != null) {
                         gc.setGivenName(vcard.getN().getGivenName());
                         gc.setFamilyName(vcard.getN().getFamilyName());
+                        
+                        List<String> prefixes = vcard.getN().getHonorificPrefixes();
+                        if(prefixes != null) {
+                            for(String prefix: prefixes) {
+                                gc.setNamePrefix(prefix);
+                                break;
+                            }
+                        }
+                        
+                        List<String> suffixes = vcard.getN().getHonorificSuffixes();
+                        if(prefixes != null) {
+                            for(String suffix: suffixes) {
+                                gc.setNameSuffix(suffix);
+                                break;
+                            }
+                        }
                     }
+                    
+                    if(vcard.getNicknames() != null) {
+                        NicknameType nicks = vcard.getNicknames();
+                        if(nicks.getNicknames() != null) {
+                            for(String nick: nicks.getNicknames()) {
+                                if(nick != null && ! nick.trim().equals("")) {
+                                    gc.setNickname(nick);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    
+                    if(vcard.getBDay() != null) {
+                        Calendar cal = vcard.getBDay().getBirthday();
+                        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+                        gc.setBirthday(format.format(cal.getTime()));
+                    }
+                    
                     if(vcard.getEmails() != null)
                         for(EmailType email: vcard.getEmails()) {
                             gc.addEmail("Home", email.getEmail());
                         }
+                    
                     if(vcard.getTels() != null)
                         for(TelType num: vcard.getTels()) {
                             gc.addPhone("Mobile", num.getTelephone());
