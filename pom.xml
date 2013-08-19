@@ -31,5 +31,10 @@
 			<artifactId>commons-codec</artifactId>
 			<version>1.5</version>
 		</dependency>
+		<dependency>
+			<groupId>gnu.getopt</groupId>
+			<artifactId>java-getopt</artifactId>
+			<version>1.0.13</version>
+		</dependency>
 	</dependencies>
 </project>
