@@ -1,2 +1,5 @@
 contacts/*
 .settings/*
+.project
+.classpath
+target/*
